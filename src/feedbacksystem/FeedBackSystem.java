@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Scanner;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class FeedBackSystem {
 
@@ -30,10 +31,11 @@ public class FeedBackSystem {
                 int ch = sc.nextInt();
                 switch (ch) {
                     case 1:
+                        logIn(con, sc);
                         System.out.println("");
                         break;
                     case 2:
-                        registration(con,sc);
+                        registration(con, sc);
                         System.out.println("");
                         break;
                     case 3:
@@ -83,7 +85,7 @@ public class FeedBackSystem {
             PreparedStatement ps = con.prepareStatement("INSERT INTO users(name,email,role,password) VALUES(?,?,'user',?);");
             ps.setString(1, name);
             ps.setString(2, email);
-            ps.setString(3, password);
+            ps.setString(3, pass);
             int r = ps.executeUpdate();
             if (r > 0) {
                 System.out.println("Sign Up successfully.");
@@ -96,14 +98,43 @@ public class FeedBackSystem {
         }
 
     }
-    
-    public static boolean isExist(String email, Connection con) throws SQLException{
+
+    public static boolean isExist(String email, Connection con) throws SQLException {
         PreparedStatement p = con.prepareStatement("SELECT * FROM users WHERE email = ?;");
         p.setString(1, email);
-        if(p.executeQuery().next()){
+        if (p.executeQuery().next()) {
             return true;
         }
         return false;
+    }
+
+    public static void logIn(Connection con, Scanner sc) throws SQLException {
+        sc.nextLine();
+        System.out.print("Enter email : ");
+        String em = sc.nextLine();
+        System.out.print("Enter password : ");
+        String pass = sc.nextLine();
+
+        PreparedStatement p = con.prepareStatement("SELECT * FROM users WHERE email = ? AND password = ?;");
+        p.setString(1, em);
+        p.setString(2, pass);
+        ResultSet rs = p.executeQuery();
+        if (rs.next()) {
+            System.out.println("LOg In Successfully " + rs.getString("name"));
+
+            if (rs.getString("role").equals("admin")) {
+                //adminFeedback();
+                System.out.println("");
+
+            } else {
+                //userFeedback();
+                System.out.println("");
+            }
+
+        } else {
+            System.out.println("Wrong Information!!! Try Again.");
+        }
+
     }
 
 }

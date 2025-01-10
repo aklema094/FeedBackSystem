@@ -1,26 +1,26 @@
-
 package feedbacksystem;
+
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Scanner;
+import java.sql.PreparedStatement;
+
 public class FeedBackSystem {
-    
+
     private final static String url = "jdbc:mysql://localhost:3306/feedback";
     private final static String userName = "root";
     private final static String password = "29344";
-    
-    
-    
-    public static void main(String[] args) throws ClassNotFoundException, InterruptedException{
-        
+
+    public static void main(String[] args) throws ClassNotFoundException, InterruptedException {
+
         Scanner sc = new Scanner(System.in);
-        
+
         Class.forName("com.mysql.cj.jdbc.Driver");
-        try{
-            Connection con = DriverManager.getConnection(url,userName,password); 
-            
-            while(true){
+        try {
+            Connection con = DriverManager.getConnection(url, userName, password);
+
+            while (true) {
                 System.out.println("WELCOME TO FEEDBACK SYSTEM");
                 System.out.println("==========================");
                 System.out.println("1. LogIn");
@@ -28,38 +28,82 @@ public class FeedBackSystem {
                 System.out.println("3. Exit");
                 System.out.print("Enter your choice : ");
                 int ch = sc.nextInt();
-                switch(ch){
-                    case 1: 
+                switch (ch) {
+                    case 1:
+                        System.out.println("");
                         break;
                     case 2:
+                        registration(con,sc);
+                        System.out.println("");
                         break;
                     case 3:
                         exit();
-                        return;
-                    default :
                         System.out.println("");
-                        System.out.println("Invalid Choice!!!!");
+                        return;
+                    default:
+                        System.out.println("\nInvalid Choice!!!!\n");
                         break;
                 }
-                
-                
+
             }
-               
-        }catch(SQLException e){
-            e.printStackTrace();     
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        
-        
-      
+
     }
-    
-    public static void exit() throws InterruptedException{
+
+    public static void exit() throws InterruptedException {
         System.out.print("Existing System");
         for (int i = 0; i < 7; i++) {
             System.out.print(". ");
-            Thread.sleep(250);   
+            Thread.sleep(250);
         }
         System.out.println("");
     }
+
+    public static void registration(Connection con, Scanner sc) throws SQLException {
+        sc.nextLine();
+        System.out.print("Enter name : ");
+        String name = sc.nextLine();
+        System.out.print("Enter email : ");
+        String email = sc.nextLine();
+        while (!email.contains("@")) {
+            System.out.print("Enter a valid email : ");
+            email = sc.nextLine();
+        }
+        if (!isExist(email, con)) {
+            System.out.print("Enter password : ");
+            String pass = sc.nextLine();
+            while (pass.length() < 6) {
+                System.out.println("Error: Password must be more than 6 characters.");
+                pass = sc.nextLine();
+            }
+
+            PreparedStatement ps = con.prepareStatement("INSERT INTO users(name,email,role,password) VALUES(?,?,'user',?);");
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setString(3, password);
+            int r = ps.executeUpdate();
+            if (r > 0) {
+                System.out.println("Sign Up successfully.");
+            } else {
+                System.out.println("Failed to Sign Up.");
+            }
+
+        } else {
+            System.out.println("An account already exist with this email, Try with new email!!!");
+        }
+
+    }
     
+    public static boolean isExist(String email, Connection con) throws SQLException{
+        PreparedStatement p = con.prepareStatement("SELECT * FROM users WHERE email = ?;");
+        p.setString(1, email);
+        if(p.executeQuery().next()){
+            return true;
+        }
+        return false;
+    }
+
 }

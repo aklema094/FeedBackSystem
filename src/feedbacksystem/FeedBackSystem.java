@@ -39,7 +39,7 @@ public class FeedBackSystem {
                         System.out.println("");
                         break;
                     case 3:
-                        exit();
+                        exit("Existing System");
                         System.out.println("");
                         return;
                     default:
@@ -55,8 +55,8 @@ public class FeedBackSystem {
 
     }
 
-    public static void exit() throws InterruptedException {
-        System.out.print("Existing System");
+    public static void exit(String s) throws InterruptedException {
+        System.out.print(s);
         for (int i = 0; i < 7; i++) {
             System.out.print(". ");
             Thread.sleep(250);
@@ -108,7 +108,7 @@ public class FeedBackSystem {
         return false;
     }
 
-    public static void logIn(Connection con, Scanner sc) throws SQLException {
+    public static void logIn(Connection con, Scanner sc) throws SQLException, InterruptedException {
         sc.nextLine();
         System.out.print("Enter email : ");
         String em = sc.nextLine();
@@ -121,18 +121,70 @@ public class FeedBackSystem {
         ResultSet rs = p.executeQuery();
         if (rs.next()) {
             System.out.println("LOg In Successfully " + rs.getString("name"));
-
-            if (rs.getString("role").equals("admin")) {
-                //adminFeedback();
-                System.out.println("");
+            String role = rs.getString("role");
+            if (role.equals("admin")) {
+                adminMenu(con, sc);
 
             } else {
-                //userFeedback();
-                System.out.println("");
+               userMenu(con,sc,rs.getInt("id"));
             }
 
         } else {
-            System.out.println("Wrong Information!!! Try Again.");
+            System.out.println("Invalid credentials!!! Try Again.");
+        }
+
+    }
+
+    public static void adminMenu(Connection con, Scanner sc) throws InterruptedException {
+
+        sc.nextLine();
+        while (true) {
+            System.out.println("          Admin Menu");
+            System.out.println("===============================");
+            System.out.println("1. View All FeedBack");
+            System.out.println("2. Generate DeshBoard");
+            System.out.println("3. Log out ");
+            System.out.print("Enter you Choice : ");
+            int c = sc.nextInt();
+            switch (c) {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    exit("Logging out");
+                    return;
+                default:
+                    System.out.println("Invalid choice !!!");
+                    break;
+            }
+        }
+
+    }
+
+    public static void userMenu(Connection con, Scanner sc, int id) throws InterruptedException {
+
+        sc.nextLine();
+        while (true) {
+            System.out.println("          User Menu");
+            System.out.println("===============================");
+            System.out.println("1. Submit Feedback");
+            System.out.println("2. View My Feedback");
+            System.out.println("3. Logout");
+            System.out.print("Enter you Choice : ");
+            int c = sc.nextInt();
+            switch (c) {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    exit("Logging out");
+                    return;
+                default:
+                    System.out.println("Invalid choice !!!");
+                    break;
+            }
         }
 
     }

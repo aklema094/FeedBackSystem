@@ -126,7 +126,7 @@ public class FeedBackSystem {
                 adminMenu(con, sc);
 
             } else {
-               userMenu(con,sc,rs.getInt("id"));
+                userMenu(con, sc, rs.getInt("id"));
             }
 
         } else {
@@ -162,7 +162,7 @@ public class FeedBackSystem {
 
     }
 
-    public static void userMenu(Connection con, Scanner sc, int id) throws InterruptedException {
+    public static void userMenu(Connection con, Scanner sc, int id) throws InterruptedException, SQLException {
 
         sc.nextLine();
         while (true) {
@@ -175,8 +175,10 @@ public class FeedBackSystem {
             int c = sc.nextInt();
             switch (c) {
                 case 1:
+                    submitFeedback(con, sc, id);
                     break;
                 case 2:
+                    viewMyFeedBack(con, id);
                     break;
                 case 3:
                     exit("Logging out");
@@ -185,6 +187,41 @@ public class FeedBackSystem {
                     System.out.println("Invalid choice !!!");
                     break;
             }
+        }
+
+    }
+
+    private static void submitFeedback(Connection conn, Scanner scanner, int userId) throws SQLException {
+        System.out.print("Enter rating (1-5): ");
+        int rating = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        System.out.print("Enter comments: ");
+        String comments = scanner.nextLine();
+
+        String query = "INSERT INTO feedbackT (user_id, rating, comments) VALUES (?, ?, ?)";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, rating);
+            pstmt.setString(3, comments);
+
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Feedback submitted successfully!");
+            } else {
+                System.out.println("Failed to submit feedback. Try again.");
+            }
+        }
+    }
+
+    public static void viewMyFeedBack(Connection con, int id) throws SQLException {
+
+        PreparedStatement pst = con.prepareStatement("SELECT * FROM feedbackT WHERE user_id = ?");
+        pst.setInt(1, id);
+        ResultSet rs = pst.executeQuery();
+        while (rs.next()) {
+            System.out.println("Rating : " + rs.getInt("rating") + "     Comment : " + rs.getString("comments"));
         }
 
     }

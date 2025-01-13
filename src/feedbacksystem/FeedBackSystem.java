@@ -135,7 +135,7 @@ public class FeedBackSystem {
 
     }
 
-    public static void adminMenu(Connection con, Scanner sc) throws InterruptedException {
+    public static void adminMenu(Connection con, Scanner sc) throws InterruptedException, SQLException {
 
         sc.nextLine();
         while (true) {
@@ -148,8 +148,10 @@ public class FeedBackSystem {
             int c = sc.nextInt();
             switch (c) {
                 case 1:
+                    viewAllFeedBack(con);
                     break;
                 case 2:
+                    
                     break;
                 case 3:
                     exit("Logging out");
@@ -220,10 +222,28 @@ public class FeedBackSystem {
         PreparedStatement pst = con.prepareStatement("SELECT * FROM feedbackT WHERE user_id = ?");
         pst.setInt(1, id);
         ResultSet rs = pst.executeQuery();
-        while (rs.next()) {
-            System.out.println("Rating : " + rs.getInt("rating") + "     Comment : " + rs.getString("comments"));
+        if (rs.next()) {
+            while (rs.next()) {
+                System.out.println("Rating : " + rs.getInt("rating") + "     Comment : " + rs.getString("comments"));
+            }
+        } else {
+            System.out.println("No Feedback Exist");
         }
 
     }
 
+    public static void viewAllFeedBack(Connection con) throws SQLException {
+       PreparedStatement pst = con.prepareStatement("SELECT * FROM feedbackT;");
+       pst.executeQuery();
+       
+       ResultSet rs = pst.executeQuery();
+        if (!rs.next()) {
+            System.out.println("No feedback added yet.");
+        } else {
+           while (rs.next()) {
+                System.out.println("Id : "+rs.getInt("id")+"    User Id : "+rs.getInt("user_id")+"      Rating : " + rs.getInt("rating") + "     Comment : " + rs.getString("comments"));
+            }
+        }
+        
+    }
 }
